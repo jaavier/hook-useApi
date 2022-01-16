@@ -1,27 +1,28 @@
 import { useState } from 'react';
-import customHeaders from './customHeaders';
+import headers from './headers';
 
-const baseUrl = 'http://localhost:3000/api';
+const baseUrl = 'http://localhost:3002/api';
 
-export default function useApi(resource) {
-	const [ queryString, setQueryString ] = useState({});
+export default function useApi(resource, path) {
 	const [ responses, setResponses ] = useState({
 		remove: '',
 		get: '',
 		post: '',
 		put: ''
 	});
-
-	const addQueryString = ({ key, value }) => {
-		setRefresh(true);
-		setQueryString({ ...queryString, [key]: value });
-	};
-
-	const request = async ({ method, body, headers }) => {
-		let url = baseUrl + '/' + resource;
-		const keys = Object.keys(queryString);
-		if (keys.length > 0) {
-			let qs = '?' + keys.map((key) => key + '=' + queryString[key]).join('&');
+	const request = async ({ method, body, customHeaders, queryString, params }) => {
+		let url = `${baseUrl}/${resource}`;
+		if (params) {
+			const keys = Object.keys(params);
+			url += `/${keys.map((key) => params[key]).join('/')}`;
+		}
+		if (queryString) {
+			const keys = Object.keys(queryString);
+			let qs = '?';
+			keys.forEach((key) => {
+				qs += `${key}=${queryString[key]}&`;
+			});
+			qs = qs.slice(0, -1);
 			url += qs;
 		}
 		const response = await fetch(url, {
@@ -29,7 +30,10 @@ export default function useApi(resource) {
 			headers: { ...headers, ...customHeaders },
 			body: body ? JSON.stringify(body) : undefined
 		});
-		if (response.status !== 200) throw new Error('API Error');
+		if (response.status !== 200) {
+			setResponses({ ...responses, [method]: null });
+			throw new Error('API Error');
+		}
 		const json = await response.json();
 		setResponses({ ...responses, [method]: json });
 		return json;
@@ -45,8 +49,6 @@ export default function useApi(resource) {
 		get,
 		post,
 		put,
-		responses,
-		queryString,
-		addQueryString
+		responses
 	};
 }
