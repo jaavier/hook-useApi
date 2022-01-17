@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import headers from './headers';
+import customHeaders from './customHeaders';
 
 const baseUrl = 'http://localhost:3002/api';
 
@@ -10,7 +10,7 @@ export default function useApi(resource) {
 		post: '',
 		put: ''
 	});
-	const request = async ({ method, body, customHeaders, queryString, params }) => {
+	const request = async ({ method, body, headers, queryString, params }) => {
 		let url = `${baseUrl}/${resource}`;
 		if (params) {
 			const keys = Object.keys(params);
