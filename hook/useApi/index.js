@@ -3,7 +3,7 @@ import headers from './headers';
 
 const baseUrl = 'http://localhost:3002/api';
 
-export default function useApi(resource, path) {
+export default function useApi(resource) {
 	const [ responses, setResponses ] = useState({
 		remove: '',
 		get: '',
