@@ -27,7 +27,7 @@ export default function useApi(resource) {
 		}
 		const response = await fetch(url, {
 			method,
-			headers: { ...headers, ...customHeaders },
+			headers: { ...headers, ...customHeaders[method] },
 			body: body ? JSON.stringify(body) : undefined
 		});
 		if (response.status !== 200) {
