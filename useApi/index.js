@@ -10,6 +10,12 @@ export default function useApi(resource) {
 		post: '',
 		put: ''
 	});
+	const [ statusCode, setStatusCode ] = useState({
+		remove: '',
+		get: '',
+		post: '',
+		put: ''
+	});
 	const request = async ({ method, body, headers, queryString, params }) => {
 		let url = `${baseUrl}/${resource}`;
 		if (params) {
@@ -30,15 +36,15 @@ export default function useApi(resource) {
 			headers: { ...headers, ...customHeaders[method] },
 			body: body ? JSON.stringify(body) : undefined
 		});
+		setStatusCode({ ...statusCode, [method]: response.status });
 		if (response.status !== 200) {
-			setResponses({ ...responses, [method]: null });
-			throw new Error('API Error');
+			setResponses({ ...responses, [method]: '' });
+			throw new Error(response.statusText);
 		}
 		const json = await response.json();
 		setResponses({ ...responses, [method]: json });
 		return json;
 	};
-
 	const remove = async (params) => await request({ method: 'delete', ...params });
 	const get = async (params) => await request({ method: 'get', ...params });
 	const post = async (params) => await request({ method: 'post', ...params });
@@ -49,6 +55,7 @@ export default function useApi(resource) {
 		get,
 		post,
 		put,
-		responses
+		responses,
+		statusCode
 	};
 }
